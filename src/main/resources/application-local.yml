@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: containers-local
+
+solace:
+  java:
+    host: tcp://localhost:55555
+    msg-vpn: default
+    client-username: default
+    client-password: default
+
+logging:
+  level:
+    Anshpty.containers: DEBUG
+    com.solacesystems: INFO

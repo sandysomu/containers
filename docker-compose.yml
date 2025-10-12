@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  solace:
+    image: solace/solace-pubsub-standard:latest
+    container_name: solace-broker
+    ports:
+      - "8080:8080"   # Web UI
+      - "55555:55555" # SMF
+      - "8008:8008"   # REST
+      - "1883:1883"   # MQTT
+      - "8000:8000"   # MQTT WebSocket
+      - "5672:5672"   # AMQP
+      - "9000:9000"   # REST WebSocket
+    environment:
+      - username_admin_globalaccesslevel=admin
+      - username_admin_password=admin
+    shm_size: 2g
+    ulimits:
+      nofile:
+        soft: 2448
+        hard: 42192
+      core: -1
+    networks:
+      - solace-network
+
+networks:
+  solace-network:
+    driver: bridge

@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: containers-test
+
+# Solace Configuration - Will be overridden by TestContainers
+solace:
+  java:
+    host: ${SOLACE_HOST:tcp://localhost:55555}
+    msg-vpn: ${SOLACE_VPN:default}
+    client-username: ${SOLACE_USERNAME:default}
+    client-password: ${SOLACE_PASSWORD:default}
+    connect-retries: 3
+    reconnect-retries: 3
+
+# Application Configuration
+app:
+  solace:
+    queue-name: test-queue
+    topic: test/topic/integration
+
+# Logging
+logging:
+  level:
+    com.example.solacedemo: DEBUG
+    com.solacesystems: INFO
+    org.testcontainers: INFO

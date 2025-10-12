@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+# Solace Configuration
+solace:
+  java:
+    host: tcp://localhost:55555
+    msg-vpn: default
+    client-username: default
+    client-password: default
+    connect-retries: 3
+    reconnect-retries: 3
+    reconnect-retry-wait: 3000
+    connect-timeout: 10000
+
+# Application Configuration
+app:
+  solace:
+    queue-name: demo-queue
+    topic: demo/topic/test
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.example.solacedemo: INFO
+    com.solacesystems: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
