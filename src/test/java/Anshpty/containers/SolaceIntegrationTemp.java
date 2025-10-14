@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 @Import(SolaceContainerConfig.class)
-class SolaceIntegrationTest {
+class SolaceIntegrationTemp {
 
     @Autowired
     SolaceContainerConfig.SolaceTestProperties solace;
@@ -20,4 +20,5 @@ class SolaceIntegrationTest {
         // You can now connect with JCSMP or Spring Cloud Stream binder using these props.
     }
 }
+
 
