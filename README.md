@@ -115,3 +115,62 @@ public class Main {
         }
     }
 }
+
+
+
+
+Another one
+import com.solacesystems.jcsmp.*;
+
+public final class SolaceAdmin {
+
+  private SolaceAdmin() {}
+
+  /**
+   * Provision a durable queue (if missing) and bind a topic subscription to it.
+   * Idempotent: safely ignores "already exists" for both queue and subscription.
+   *
+   * @param session          Connected JCSMPSession
+   * @param queueName        Name of the queue to provision (e.g., "q/input")
+   * @param topicSubscription Topic to bind (e.g., "demo/in" or with wildcards "demo/>")
+   * @throws JCSMPException  If the broker returns an unexpected error
+   */
+  public static void provisionQueueAndBindTopic(JCSMPSession session,
+                                                String queueName,
+                                                String topicSubscription) throws JCSMPException {
+    // 1) Build queue object & endpoint properties
+    Queue queue = JCSMPFactory.onlyInstance().createQueue(queueName);
+    EndpointProperties ep = new EndpointProperties();
+    ep.setAccessType(EndpointProperties.ACCESSTYPE_EXCLUSIVE);   // single consumer; change to NONEXCLUSIVE if needed
+    ep.setPermission(EndpointProperties.PERMISSION_CONSUME);     // allow consuming
+
+    // 2) Provision the queue (ignore if it already exists)
+    session.provision(queue, ep, JCSMPSession.FLAG_IGNORE_ALREADY_EXISTS);
+
+    // 3) Bind the topic subscription to the queue (so publishes to the topic get enqueued)
+    Topic topic = JCSMPFactory.onlyInstance().createTopic(topicSubscription);
+    try {
+      session.addSubscription(queue, topic, JCSMPSession.WAIT_FOR_CONFIRM);
+    } catch (JCSMPErrorResponseException e) {
+      // If it already exists, ignore; otherwise rethrow
+      if (!isAlreadyExists(e)) {
+        throw e;
+      }
+    }
+  }
+
+  /**
+   * Basic check for "already exists" scenarios from the broker.
+   * Different broker versions may use different subcodes; keep this tolerant.
+   */
+  private static boolean isAlreadyExists(JCSMPErrorResponseException e) {
+    final int subcode = e.getSubcodeEx();
+    // Known subcodes for "already exists" differ by operation; keep lenient.
+    // Common ones include: JCSMPErrorResponseSubcode.ALREADY_EXISTS, SUBSCRIPTION_ALREADY_PRESENT, etc.
+    // Fall back to message contains check as a last resort.
+    return subcode == JCSMPErrorResponseSubcode.ALREADY_EXISTS
+        || subcode == JCSMPErrorResponseSubcode.SUBSCRIPTION_ALREADY_PRESENT
+        || (e.getMessage() != null && e.getMessage().toLowerCase().contains("already exist"));
+  }
+}
+
